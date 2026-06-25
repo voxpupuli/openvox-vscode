@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: release-${{ github.ref }}
@@ -103,26 +104,53 @@ jobs:
             --generate-notes \
             --verify-tag
 
-      - name: Update latest development release
+      - name: Upload latest development build
+        if: github.ref_type != 'tag'
+        id: development_artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openvox-vscode-latest
+          path: artifacts/${{ steps.release.outputs.vsix }}
+          if-no-files-found: error
+
+      - name: Update latest development build issue
         if: github.ref_type != 'tag'
         env:
           GH_TOKEN: ${{ github.token }}
+          ARTIFACT_URL: ${{ steps.development_artifact.outputs.artifact-url }}
         run: |
-          release_notes="Automatically built from commit ${GITHUB_SHA} on ${GITHUB_REF_NAME}."
+          issue_title="Latest development build"
+          short_sha="${GITHUB_SHA::7}"
+          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          commit_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
 
-          if gh release view latest >/dev/null 2>&1; then
-            gh release edit latest \
-              --title "Latest development build" \
-              --notes "$release_notes" \
-              --prerelease
+          issue_body="$(cat <<EOF
+          The latest VSIX development build from \`${GITHUB_REF_NAME}\` is available below.
+
+          - [Download openvox-vscode-latest artifact](${ARTIFACT_URL})
+          - Commit: [\`${short_sha}\`](${commit_url})
+          - Workflow run: [${GITHUB_RUN_ID}](${run_url})
+
+          > GitHub login is required to download workflow artifacts. The download expires according to the repository's artifact retention policy.
+
+          This issue is updated automatically after every successful build on \`${GITHUB_REF_NAME}\`.
+          EOF
+          )"
+
+          issue_number="$(
+            gh issue list \
+              --state all \
+              --limit 100 \
+              --json number,title \
+              --jq ".[] | select(.title == \"${issue_title}\") | .number" \
+              | head -n 1
+          )"
+
+          if [[ -n "$issue_number" ]]; then
+            gh issue edit "$issue_number" \
+              --body "$issue_body"
           else
-            gh release create latest \
-              --target "$GITHUB_SHA" \
-              --title "Latest development build" \
-              --notes "$release_notes" \
-              --prerelease
+            gh issue create \
+              --title "$issue_title" \
+              --body "$issue_body"
           fi
-
-          gh release upload latest \
-            "artifacts/${{ steps.release.outputs.vsix }}" \
-            --clobber
