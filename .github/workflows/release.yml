@@ -1,0 +1,128 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "20"
+  RUBY_VERSION: "3.2"
+
+jobs:
+  release:
+    name: Build and release VSIX
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out extension
+        uses: actions/checkout@v4
+
+      - name: Check out editor services
+        uses: actions/checkout@v4
+        with:
+          repository: voxpupuli/openvox-editor-services
+          ref: 1b1cd61a76067b1d4f97529abe7cbf3ea7062292
+          path: dependencies/openvox-editor-services
+
+      - name: Check out editor syntax
+        uses: actions/checkout@v4
+        with:
+          repository: voxpupuli/openvox-editor-syntax
+          ref: fc73fd4e8a942dab7796017d02a98d6441c254b1
+          path: dependencies/openvox-editor-syntax
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+
+      - name: Vendor language server dependencies
+        working-directory: dependencies/openvox-editor-services
+        run: |
+          gem install rake --no-document
+          rake gem_revendor
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set build metadata
+        id: release
+        shell: bash
+        run: |
+          package_version="$(node --print "require('./package.json').version")"
+
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            tag_version="${GITHUB_REF_NAME#v}"
+
+            if [[ "$tag_version" != "$package_version" ]]; then
+              echo "::error::Tag version $tag_version does not match package.json version $package_version"
+              exit 1
+            fi
+
+            echo "vsix=openvox-vscode-$package_version.vsix" >> "$GITHUB_OUTPUT"
+          else
+            echo "vsix=openvox-vscode-latest.vsix" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "version=$package_version" >> "$GITHUB_OUTPUT"
+
+      - name: Build VSIX
+        env:
+          OPENVOX_EDITOR_SERVICES_DIR: ${{ github.workspace }}/dependencies/openvox-editor-services
+          OPENVOX_EDITOR_SYNTAX_DIR: ${{ github.workspace }}/dependencies/openvox-editor-syntax
+        run: |
+          mkdir -p artifacts
+          npm run package -- --out "artifacts/${{ steps.release.outputs.vsix }}"
+
+      - name: Create versioned GitHub release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            "artifacts/${{ steps.release.outputs.vsix }}" \
+            --title "${{ github.ref_name }}" \
+            --generate-notes \
+            --verify-tag
+
+      - name: Update latest development release
+        if: github.ref_type != 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          release_notes="Automatically built from commit ${GITHUB_SHA} on ${GITHUB_REF_NAME}."
+
+          if gh release view latest >/dev/null 2>&1; then
+            gh release edit latest \
+              --title "Latest development build" \
+              --notes "$release_notes" \
+              --prerelease
+          else
+            gh release create latest \
+              --target "$GITHUB_SHA" \
+              --title "Latest development build" \
+              --notes "$release_notes" \
+              --prerelease
+          fi
+
+          gh release upload latest \
+            "artifacts/${{ steps.release.outputs.vsix }}" \
+            --clobber
