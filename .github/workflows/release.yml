@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: voxpupuli/openvox-editor-services
-          ref: 1b1cd61a76067b1d4f97529abe7cbf3ea7062292
+          ref: af498856bf3b32ec86a3fa7cd2e63aefe509c338
           path: dependencies/openvox-editor-services
 
       - name: Check out editor syntax
