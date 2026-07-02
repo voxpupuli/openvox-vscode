@@ -181,6 +181,9 @@
     "check": "npm run build && node scripts/check-package.mjs",
     "package": "npm run build && vsce package"
   },
+  "openvoxDependencies": {
+    "openvox-editor-services": "3.0.0"
+  },
   "dependencies": {
     "vscode-languageclient": "^9.0.1"
   },

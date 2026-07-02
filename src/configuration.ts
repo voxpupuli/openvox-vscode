@@ -56,6 +56,11 @@ export function createServerExecutable(
   const installRoot = resolveInstallRoot(settings.installDirectory);
   const layout = resolveRuntimeLayout(installRoot);
   const env = createEnvironment(layout, settings.rubyCommand.trim() === '');
+  const bundledGemHome = path.join(path.dirname(serverPath), 'gems');
+  if (fs.existsSync(bundledGemHome)) {
+    env.GEM_HOME = bundledGemHome;
+    env.GEM_PATH = bundledGemHome;
+  }
   const command = resolveRubyCommand(settings.rubyCommand, layout);
 
   const args = [serverPath, '--stdio', `--timeout=${settings.timeout}`];

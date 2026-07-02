@@ -11,6 +11,7 @@ const requiredPaths = [
   '../snippets/puppetfile.snippets.json',
   '../vendor/languageserver/openvox-languageserver',
   '../vendor/languageserver/openvox-languageserver-sidecar',
+  '../vendor/languageserver/gems',
   '../vendor/languageserver/lib/puppet_languageserver.rb',
 ];
 
