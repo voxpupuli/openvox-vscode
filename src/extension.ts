@@ -8,6 +8,7 @@ import {
 } from 'vscode-languageclient/node';
 import {
   createServerExecutable,
+  hasConfiguredInstallDirectory,
   readSettings,
   resolveServerPath,
   validateOpenVoxRuntime,
@@ -57,7 +58,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   const serverOptions = createServerExecutable(context, settings);
   const runtimeValidation = validateOpenVoxRuntime(context, settings, serverOptions);
-  if (!runtimeValidation.valid) {
+  const configuredInstallDirectory = hasConfiguredInstallDirectory(settings);
+  if (!runtimeValidation.valid && !configuredInstallDirectory) {
     const message = 'OpenVox Agent is required for language-server features, but no usable OpenVox runtime was found.';
     logger.error(`${message} ${runtimeValidation.error ?? ''}`.trim());
     statusBar.text = '$(error) OpenVox missing';
@@ -72,7 +74,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     return;
   }
 
-  logger.normal(`Found OpenVox Agent runtime ${runtimeValidation.version}.`);
+  if (runtimeValidation.valid) {
+    logger.normal(`Found OpenVox Agent runtime ${runtimeValidation.version}.`);
+  } else {
+    logger.warning(
+      `Using configured OpenVox Agent install directory '${settings.installDirectory}' without successful runtime validation. ${runtimeValidation.error ?? ''}`.trim(),
+    );
+  }
   logger.debug(`Starting language server: ${serverOptions.command} ${serverOptions.args?.join(' ') ?? ''}`);
 
   const clientOptions: LanguageClientOptions = {

@@ -44,6 +44,10 @@ export function resolveServerPath(context: vscode.ExtensionContext, settings: Op
   return context.asAbsolutePath(path.join('vendor', 'languageserver', 'openvox-languageserver'));
 }
 
+export function hasConfiguredInstallDirectory(settings: OpenVoxSettings): boolean {
+  return settings.installDirectory.trim() !== '';
+}
+
 export function createServerExecutable(
   context: vscode.ExtensionContext,
   settings: OpenVoxSettings,
