@@ -1,0 +1,21 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "customManagers": [
+    {
+      // Keep the vendored openvox-editor-services gem version visible in package.json
+      // while still letting Renovate track updates from RubyGems.
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^package\\.json$/"
+      ],
+      "matchStrings": [
+        "\"openvox-editor-services\"\\s*:\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "openvox-editor-services",
+      "datasourceTemplate": "rubygems"
+    }
+  ]
+}
