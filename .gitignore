@@ -1,8 +1,5 @@
 node_modules/
 out/
 vendor/
-syntaxes/puppet.tmLanguage
-LICENSE.editor-syntax
-NOTICE.editor-syntax
 *.vsix
 .DS_Store

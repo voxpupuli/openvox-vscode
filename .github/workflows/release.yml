@@ -30,13 +30,6 @@ jobs:
       - name: Check out extension
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Check out editor syntax
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          repository: voxpupuli/openvox-editor-syntax
-          ref: fc73fd4e8a942dab7796017d02a98d6441c254b1
-          path: dependencies/openvox-editor-syntax
-
       - name: Set up Ruby
         uses: ruby/setup-ruby@0dafeac902942906541bc140009cdbf32665b601 # v1.315.0
         with:
@@ -73,8 +66,6 @@ jobs:
           echo "version=$package_version" >> "$GITHUB_OUTPUT"
 
       - name: Build VSIX
-        env:
-          OPENVOX_EDITOR_SYNTAX_DIR: ${{ github.workspace }}/dependencies/openvox-editor-syntax
         run: |
           mkdir -p artifacts
           npm run package -- --out "artifacts/${{ steps.release.outputs.vsix }}"

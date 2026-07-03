@@ -6,8 +6,9 @@ licenses:
 
 - `openvox-editor-services`, derived from `puppet-editor-services` and licensed
   under Apache-2.0.
-- `openvox-editor-syntax`, derived from `puppet-editor-syntax` and licensed under MIT. Its upstream `NOTICE` file is
-  included in the generated package as `NOTICE.editor-syntax`.
+- `syntaxes/puppet.tmLanguage`, copied from `openvox-editor-syntax`, derived
+  from `puppet-editor-syntax`, and licensed under MIT. Its upstream license and
+  notice are tracked as `LICENSE.editor-syntax` and `NOTICE.editor-syntax`.
 - `syntaxes/puppetfile.cson.json` was carried over from `puppet-vscode`. The
   file identifies its original source as the Ruby grammar from
   `rubyide/vscode-ruby`, based on Atom `language-ruby` commit

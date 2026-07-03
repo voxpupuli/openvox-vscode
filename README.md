@@ -11,10 +11,9 @@ The original extension is maintained by Puppet, Inc.
 The initial version intentionally contains no PDK integration, project
 scaffolding, telemetry, debugger, Forge integration, or node graph UI.
 
-Language intelligence is provided by the `openvox-editor-services` gem and
-syntax highlighting by `openvox-editor-syntax`. The language server is vendored
-from RubyGems at build time; the syntax grammar is vendored from a local
-checkout.
+Language intelligence is provided by the `openvox-editor-services` gem. Syntax
+highlighting is provided by the TextMate grammars tracked in this repository.
+The language server is vendored from RubyGems at build time.
 
 Puppetfiles use the dedicated Ruby TextMate grammar retained in
 `syntaxes/puppetfile.cson.json`. It is tracked in this repository so Puppetfile
@@ -59,15 +58,7 @@ VS Code extensions; it cannot install or manage the OpenVox Agent.
 
 ## Development
 
-Expected sibling repositories:
-
-```text
-vscode/
-├── openvox-vscode/
-└── openvox-editor-syntax/
-```
-
-Then build the extension:
+Build the extension:
 
 ```shell
 npm install
@@ -85,9 +76,6 @@ For a local one-off test, the pinned version can be overridden without editing
 ```shell
 OPENVOX_EDITOR_SERVICES_VERSION=3.0.1 npm run vendor
 ```
-
-An alternative syntax checkout can be selected with
-`OPENVOX_EDITOR_SYNTAX_DIR`.
 
 OpenVox currently retains the Puppet Ruby namespace and executable layout.
 Therefore the extension keeps the VS Code language ID `puppet`, the TextMate
