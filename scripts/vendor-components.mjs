@@ -56,12 +56,12 @@ if (gemInstall.status !== 0) {
 }
 
 for (const relativePath of requiredExecutablePaths) {
-  await access(path.join(languageServerGemBin, relativePath));
+  await access(path.join(editorServicesInstallRoot, 'bin', relativePath));
 }
 await access(path.join(editorServicesInstallRoot, 'lib', 'puppet_languageserver.rb'));
 
 for (const relativePath of requiredExecutablePaths) {
-  await cp(path.join(languageServerGemBin, relativePath), path.join(languageServerTarget, relativePath));
+  await cp(path.join(editorServicesInstallRoot, 'bin', relativePath), path.join(languageServerTarget, relativePath));
 }
 await rm(languageServerGemBin, { recursive: true, force: true });
 await cp(path.join(editorServicesInstallRoot, 'lib'), path.join(languageServerTarget, 'lib'), { recursive: true });
