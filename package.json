@@ -182,7 +182,7 @@
     "package": "npm run build && vsce package"
   },
   "openvoxDependencies": {
-    "openvox-editor-services": "3.1.0"
+    "openvox-editor-services": "3.1.1"
   },
   "dependencies": {
     "vscode-languageclient": "^9.0.1"
