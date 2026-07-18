@@ -10,11 +10,11 @@ const levels = {
 type LogLevel = keyof typeof levels;
 
 export class Logger implements vscode.Disposable {
-  readonly outputChannel: vscode.OutputChannel;
+  readonly outputChannel: vscode.LogOutputChannel;
   private readonly minimumLevel: number;
 
   constructor(level: string) {
-    this.outputChannel = vscode.window.createOutputChannel('OpenVox');
+    this.outputChannel = vscode.window.createOutputChannel('OpenVox', { log: true });
     this.minimumLevel = levels[level as LogLevel] ?? levels.normal;
   }
 
@@ -50,4 +50,3 @@ export class Logger implements vscode.Disposable {
     this.outputChannel.appendLine(`${level.toUpperCase()}: ${new Date().toISOString()} ${message}`);
   }
 }
-
