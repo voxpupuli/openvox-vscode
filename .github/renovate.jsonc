@@ -3,6 +3,13 @@
   "extends": [
     "config:recommended"
   ],
+  // add labels to all renovate PRs
+  "addLabels": [
+    "dependencies",
+    "renovate"
+  ],
+  // assign PRs to code owners
+  "assigneesFromCodeOwners": true,
   "customManagers": [
     {
       // Keep the vendored openvox-editor-services gem version visible in package.json
