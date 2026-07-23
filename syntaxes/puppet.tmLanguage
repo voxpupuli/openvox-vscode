@@ -1021,7 +1021,8 @@
     <key>resource-definition</key>
     <dict>
       <key>begin</key>
-      <string>(?:^|\b)((?#Toplevel Bareword)::[a-z][a-z0-9_]*|(?#Bareword Resource Name)[a-z][a-z0-9_]*|(?#Qualified Resource Name)(?:[a-z][a-z0-9_]*)?(?:::[a-z][a-z0-9_]*)+)\s*({)\s*</string>
+      <!-- A resource name cannot start immediately after the dot in a method call such as `$value.empty {`. -->
+      <string>(?:^|(?&lt;!\.)\b)((?#Toplevel Bareword)::[a-z][a-z0-9_]*|(?#Bareword Resource Name)[a-z][a-z0-9_]*|(?#Qualified Resource Name)(?:[a-z][a-z0-9_]*)?(?:::[a-z][a-z0-9_]*)+)\s*({)\s*</string>
       <key>beginCaptures</key>
       <dict>
         <key>1</key>
