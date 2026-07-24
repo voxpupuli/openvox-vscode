@@ -178,7 +178,8 @@
     "compile": "tsc -p .",
     "vendor": "node scripts/vendor-components.mjs",
     "build": "npm run vendor && npm run compile",
-    "check": "npm run build && node scripts/check-package.mjs",
+    "test": "node --test tests/syntaxes/*.test.mjs",
+    "check": "npm run build && npm test && node scripts/check-package.mjs",
     "package": "npm run build && vsce package"
   },
   "openvoxDependencies": {
@@ -191,7 +192,9 @@
     "@types/node": "^24.0.0",
     "@types/vscode": "^1.95.0",
     "@vscode/vsce": "^3.2.1",
-    "typescript": "^7.0.0"
+    "typescript": "^7.0.0",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.3.2"
   },
   "allowScripts": {
     "@vscode/vsce-sign@2.0.9": true,
