@@ -178,7 +178,7 @@
     "compile": "tsc -p .",
     "vendor": "node scripts/vendor-components.mjs",
     "build": "npm run vendor && npm run compile",
-    "test": "node --test tests/syntaxes/*.test.mjs",
+    "test": "npm run compile && node --test tests/configuration/*.test.mjs tests/syntaxes/*.test.mjs",
     "check": "npm run build && npm test && node scripts/check-package.mjs",
     "package": "npm run build && vsce package"
   },

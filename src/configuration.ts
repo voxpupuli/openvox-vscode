@@ -159,7 +159,7 @@ interface RuntimeLayout {
 
 function resolveRuntimeLayout(installRoot: string): RuntimeLayout {
   if (process.platform === 'win32') {
-    const rubyDir = path.join(installRoot, 'sys', 'ruby');
+    const rubyDir = path.join(installRoot, 'puppet');
     return {
       installRoot,
       puppetDir: path.join(installRoot, 'puppet'),
@@ -200,7 +200,6 @@ function createEnvironment(layout: RuntimeLayout, sanitizeGemEnvironment: boolea
     path.join(layout.openFactDir, 'bin'),
     path.join(layout.installRoot, 'bin'),
     path.join(layout.rubyDir, 'bin'),
-    path.join(layout.installRoot, 'sys', 'tools', 'bin'),
     env.PATH ?? '',
   ].filter(Boolean);
   const rubyLibEntries = [
