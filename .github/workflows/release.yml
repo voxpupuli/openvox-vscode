@@ -2,27 +2,25 @@ name: Release
 
 on:
   push:
-    branches:
-      - main
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
   workflow_dispatch:
 
 permissions:
   contents: write
-  issues: write
 
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: "24"
   RUBY_VERSION: "3.4"
 
 jobs:
   release:
     name: Build and release VSIX
+    if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -30,19 +28,11 @@ jobs:
       - name: Check out extension
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
-        with:
-          ruby-version: ${{ env.RUBY_VERSION }}
-
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-
-      - name: Install Node.js dependencies
-        run: npm ci
 
       - name: Set build metadata
         id: release
@@ -50,84 +40,87 @@ jobs:
         run: |
           package_version="$(node --print "require('./package.json').version")"
 
-          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
-            tag_version="${GITHUB_REF_NAME#v}"
+          tag_version="${GITHUB_REF_NAME#v}"
 
-            if [[ "$tag_version" != "$package_version" ]]; then
-              echo "::error::Tag version $tag_version does not match package.json version $package_version"
-              exit 1
-            fi
-
-            echo "vsix=openvox-vscode-$package_version.vsix" >> "$GITHUB_OUTPUT"
-          else
-            echo "vsix=openvox-vscode-latest.vsix" >> "$GITHUB_OUTPUT"
+          if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ || "$tag_version" != "$package_version" ]]; then
+            echo "::error::Tag $GITHUB_REF_NAME must be v$package_version"
+            exit 1
           fi
 
-          echo "version=$package_version" >> "$GITHUB_OUTPUT"
+          echo "vsix=openvox-vscode-$package_version.vsix" >> "$GITHUB_OUTPUT"
+
+      # A retry can run for the same tag if the GitHub release succeeded but publishing to Open VSX failed.
+      # Published releases are immutable, so reuse their VSIX instead of rebuilding or replacing assets.
+      # Missing releases and unfinished drafts still need the build and publication steps.
+      - name: Determine GitHub release state
+        id: release_state
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Listing releases distinguishes a missing release from an API failure.
+          is_draft="$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases" \
+            --jq ".[] | select(.tag_name == \"$GITHUB_REF_NAME\") | .draft")"
+
+          case "$is_draft" in
+            true) state=draft ;;
+            false) state=published ;;
+            "") state=missing ;;
+            *) echo "::error::Unexpected GitHub release state: $is_draft"; exit 1 ;;
+          esac
+
+          echo "state=$state" >> "$GITHUB_OUTPUT"
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Set up Ruby
+        if: steps.release_state.outputs.state != 'published'
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
+        with:
+          ruby-version: ${{ env.RUBY_VERSION }}
+
+      - name: Build and verify package contents
+        if: steps.release_state.outputs.state != 'published'
+        run: npm run check
 
       - name: Build VSIX
+        if: steps.release_state.outputs.state != 'published'
         run: |
           mkdir -p artifacts
-          npm run package -- --out "artifacts/${{ steps.release.outputs.vsix }}"
+          npx --no-install vsce package --out "artifacts/${{ steps.release.outputs.vsix }}"
 
-      - name: Create versioned GitHub release
-        if: github.ref_type == 'tag'
+      - name: Prepare versioned GitHub release
+        if: steps.release_state.outputs.state != 'published'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ github.ref_name }}" \
-            "artifacts/${{ steps.release.outputs.vsix }}" \
-            --title "${{ github.ref_name }}" \
-            --generate-notes \
-            --verify-tag
-
-      - name: Upload latest development build
-        if: github.ref_type != 'tag'
-        id: development_artifact
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: openvox-vscode-latest
-          path: artifacts/${{ steps.release.outputs.vsix }}
-          if-no-files-found: error
-
-      - name: Update latest development build issue
-        if: github.ref_type != 'tag'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          ARTIFACT_URL: ${{ steps.development_artifact.outputs.artifact-url }}
-        run: |
-          issue_title="Latest development build"
-          short_sha="${GITHUB_SHA::7}"
-          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-          commit_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"
-
-          issue_body="$(cat <<EOF
-          The latest VSIX development build from \`${GITHUB_REF_NAME}\` is available below.
-
-          - [Download openvox-vscode-latest artifact](${ARTIFACT_URL})
-          - Commit: [\`${short_sha}\`](${commit_url})
-          - Workflow run: [${GITHUB_RUN_ID}](${run_url})
-
-          > GitHub login is required to download workflow artifacts. The download expires according to the repository's artifact retention policy.
-
-          This issue is updated automatically after every successful build on \`${GITHUB_REF_NAME}\`.
-          EOF
-          )"
-
-          issue_number="$(
-            gh issue list \
-              --state all \
-              --limit 100 \
-              --json number,title \
-              --jq ".[] | select(.title == \"${issue_title}\") | .number" \
-              | head -n 1
-          )"
-
-          if [[ -n "$issue_number" ]]; then
-            gh issue edit "$issue_number" \
-              --body "$issue_body"
+          if [[ "${{ steps.release_state.outputs.state }}" == "draft" ]]; then
+            gh release upload "${{ github.ref_name }}" \
+              "artifacts/${{ steps.release.outputs.vsix }}" \
+              --clobber
+            gh release edit "${{ github.ref_name }}" --draft=false
           else
-            gh issue create \
-              --title "$issue_title" \
-              --body "$issue_body"
+            gh release create "${{ github.ref_name }}" \
+              "artifacts/${{ steps.release.outputs.vsix }}" \
+              --title "${{ github.ref_name }}" \
+              --generate-notes \
+              --verify-tag
           fi
+
+      - name: Download published VSIX
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p artifacts
+          # Publish the exact asset from the immutable GitHub release to Open VSX.
+          gh release download "${{ github.ref_name }}" \
+            --pattern "${{ steps.release.outputs.vsix }}" \
+            --dir artifacts \
+            --clobber
+
+      - name: Publish to open-vsx Marketplace
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: |
+          npx --no-install ovsx publish --skip-duplicate \
+            "artifacts/${{ steps.release.outputs.vsix }}"
