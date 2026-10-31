@@ -1,7 +1,13 @@
 .git/**
 .gitignore
 .github/**
+.bundle/**
 .vscode/**
+vendor/bundle/**
+Gemfile
+Gemfile.lock
+Rakefile
+RELEASE.md
 src/**
 scripts/**
 node_modules/@types/**

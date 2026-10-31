@@ -1,5 +1,7 @@
+.bundle/
 node_modules/
 out/
 vendor/
 *.vsix
 .DS_Store
+Gemfile.lock
