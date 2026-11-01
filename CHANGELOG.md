@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.1.1](https://github.com/voxpupuli/openvox-vscode/tree/v0.1.1) (2026-11-01)
+
+[Full Changelog](https://github.com/voxpupuli/openvox-vscode/compare/v0.1.0...v0.1.1)
+
+**Merged pull requests:**
+
+- fix: suppress Open VSX false positive in vendored RBS example [\#83](https://github.com/voxpupuli/openvox-vscode/pull/83) ([rwaffen](https://github.com/rwaffen))
+
 ## [v0.1.0](https://github.com/voxpupuli/openvox-vscode/tree/v0.1.0) (2026-10-31)
 
 [Full Changelog](https://github.com/voxpupuli/openvox-vscode/compare/latest...v0.1.0)
