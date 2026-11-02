@@ -13,6 +13,7 @@ import {
   resolveServerPath,
   validateOpenVoxRuntime,
 } from './configuration';
+import { providePuppetLintFormatting } from './formatting/provider';
 import { Logger } from './logging';
 import { RuntimeVersionDetails, runtimeVersionRequest } from './messages';
 
@@ -23,8 +24,9 @@ let statusRequestGeneration = 0;
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   const settings = readSettings();
-  logger = new Logger(settings.logLevel);
-  context.subscriptions.push(logger);
+  const extensionLogger = new Logger(settings.logLevel);
+  logger = extensionLogger;
+  context.subscriptions.push(extensionLogger);
 
   context.subscriptions.push(
     vscode.commands.registerCommand('openvox.showLanguageServerLogs', () => logger?.show()),
@@ -91,6 +93,21 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     ],
     outputChannel: logger.outputChannel,
     revealOutputChannelOn: RevealOutputChannelOn.Error,
+    middleware: {
+      provideDocumentFormattingEdits: (document, options, token, next) => {
+        if (!client) {
+          return next(document, options, token);
+        }
+        return providePuppetLintFormatting(
+          client,
+          document,
+          options,
+          token,
+          next,
+          extensionLogger,
+        );
+      },
+    },
   };
 
   client = new LanguageClient(

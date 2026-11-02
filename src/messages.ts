@@ -1,4 +1,5 @@
-import { RequestType0 } from 'vscode-languageclient/node';
+import { RequestType, RequestType0 } from 'vscode-languageclient/node';
+import { FixDiagnosticErrorsParams, FixDiagnosticErrorsResult } from './formatting/types';
 
 export interface RuntimeVersionDetails {
   puppetVersion: string;
@@ -15,3 +16,9 @@ export interface RuntimeVersionDetails {
 }
 
 export const runtimeVersionRequest = new RequestType0<RuntimeVersionDetails, void>('puppet/getVersion');
+
+export const fixDiagnosticErrorsRequest = new RequestType<
+  FixDiagnosticErrorsParams,
+  FixDiagnosticErrorsResult,
+  void
+>('puppet/fixDiagnosticErrors');

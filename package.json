@@ -15,7 +15,8 @@
   },
   "categories": [
     "Programming Languages",
-    "Linters"
+    "Linters",
+    "Formatters"
   ],
   "keywords": [
     "openvox",
@@ -150,6 +151,12 @@
           "default": "",
           "description": "Optional language-server debug log file."
         },
+        "openvox.format.puppetLint.enabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Format Puppet manifests with the language server's bundled puppet-lint --fix. When disabled, the language server's basic formatter is used."
+        },
         "openvox.puppet.confdir": {
           "type": "string",
           "default": "",
@@ -178,7 +185,7 @@
     "compile": "tsc -p .",
     "vendor": "node scripts/vendor-components.mjs",
     "build": "npm run vendor && npm run compile",
-    "test": "npm run compile && node --test tests/configuration/*.test.mjs tests/syntaxes/*.test.mjs",
+    "test": "npm run compile && node --test tests/configuration/*.test.mjs tests/syntaxes/*.test.mjs tests/formatting/*.test.mjs",
     "check": "npm run build && npm test && node scripts/check-package.mjs",
     "package": "npm run build && vsce package"
   },
