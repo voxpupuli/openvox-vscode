@@ -11,13 +11,13 @@ navigation, and formatting for the Puppet DSL.
 - Code completion for classes, resources, functions, facts, variables, and language keywords.
 - Hover documentation and function signature help.
 - Go to Definition, document symbols, and workspace symbols.
-- Document formatting, on-type formatting, and code folding.
+- Document formatting with the bundled `puppet-lint`, on-type formatting, and code folding.
 - Snippets for common Puppet DSL constructs, Puppetfile module sources, and module `metadata.json` files.
 - An OpenVox status bar item showing the loaded OpenVox, OpenFact, and language-server versions.
 
 Syntax highlighting, language detection, snippets, and editor configuration work without a local OpenVox runtime.
-Language intelligence is provided by the bundled
-[`openvox-editor-services`](https://github.com/voxpupuli/openvox-editor-services) language server and requires the
+Language intelligence and formatting are provided by the bundled
+[`openvox-editor-services`](https://github.com/voxpupuli/openvox-editor-services) language server and require the
 OpenVox Agent.
 
 ## Requirements
@@ -67,6 +67,7 @@ OpenVox environment, or additional logging is needed:
 | `openvox.languageServer.timeout` | `10` | Sets the client connection timeout in seconds. |
 | `openvox.languageServer.logLevel` | `normal` | Sets extension logging to `debug`, `normal`, `warning`, or `error`. |
 | `openvox.languageServer.debugFilePath` | empty | Writes a language-server debug log to the specified file. |
+| `openvox.format.puppetLint.enabled` | `true` | Formats manifests with the bundled `puppet-lint --fix`. |
 | `openvox.puppet.confdir` | empty | Passes a custom OpenVox configuration directory to the server. |
 | `openvox.puppet.environment` | empty | Selects the OpenVox environment used for workspace data. |
 | `openvox.puppet.modulePath` | empty | Adds an OpenVox module path. |
@@ -82,13 +83,33 @@ Open the Command Palette and use:
 The OpenVox item in the status bar also opens the language-server logs. Its tooltip shows which OpenVox, OpenFact, and
 language-server versions are active and whether workspace data has finished loading.
 
+## Formatting
+
+Format Document runs the `puppet-lint` bundled with the OpenVox language server. No project `Gemfile` or external
+`puppet-lint` executable is required.
+
+- Formatting applies `puppet-lint --fix` and therefore can change more than whitespace, including quote style, boolean
+  quoting, file modes, and legacy facts.
+- Checks are configured with a `.puppet-lint.rc` file in the workspace root. For example:
+
+  ```text
+  --only-checks trailing_whitespace,arrow_alignment
+  ```
+
+- The available checks and their behavior follow the `puppet-lint` version bundled with `openvox-editor-services`.
+- Format-on-save works through the standard VS Code `editor.formatOnSave` setting.
+- Only `.pp` manifests are formatted. `.epp` templates and `Puppetfile` files are not changed by `puppet-lint`.
+- Set `openvox.format.puppetLint.enabled` to `false` to use the language server's basic formatter instead.
+- Formatting requires the OpenVox language server to be running.
+
 ## Troubleshooting
 
 If the status bar shows **OpenVox missing**, verify that the OpenVox Agent is installed in the same local or remote environment as the extension host.
 For a non-standard installation, set `openvox.languageServer.installDirectory` and reload the VS Code window.
 
 Use **OpenVox: Show Language Server Logs** for detailed startup errors. Even when the language server cannot start,
-syntax highlighting, snippets, language detection, and editor configuration remain available.
+syntax highlighting, snippets, language detection, and editor configuration remain available. Formatting is unavailable
+because it runs inside the language server.
 
 Please report reproducible problems in the
 [`openvox-vscode` issue tracker](https://github.com/voxpupuli/openvox-vscode/issues) and include the relevant log output.
