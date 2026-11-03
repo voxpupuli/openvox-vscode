@@ -9,11 +9,24 @@ const languageServerTarget = path.join(projectRoot, 'vendor', 'languageserver');
 const languageServerGemHome = path.join(languageServerTarget, 'gems');
 const languageServerGemBin = path.join(languageServerTarget, 'gem-bin');
 const editorServicesGem = 'openvox-editor-services';
+const localGemPath = process.env.OPENVOX_EDITOR_SERVICES_GEM
+  ? path.resolve(projectRoot, process.env.OPENVOX_EDITOR_SERVICES_GEM)
+  : undefined;
 const editorServicesVersion = process.env.OPENVOX_EDITOR_SERVICES_VERSION
-  ?? packageJson.openvoxDependencies?.[editorServicesGem];
+  ?? (localGemPath
+    ? path.basename(localGemPath).match(/^openvox-editor-services-(.+)\.gem$/)?.[1]
+    : packageJson.openvoxDependencies?.[editorServicesGem]);
 
 if (!editorServicesVersion) {
-  throw new Error(`Missing ${editorServicesGem} version in package.json openvoxDependencies.`);
+  throw new Error(
+    localGemPath
+      ? 'Unable to determine the gem version from its filename. Rename it to openvox-editor-services-<version>.gem or set OPENVOX_EDITOR_SERVICES_VERSION.'
+      : `Missing ${editorServicesGem} version in package.json openvoxDependencies.`,
+  );
+}
+
+if (localGemPath) {
+  await access(localGemPath);
 }
 
 const requiredExecutablePaths = [
@@ -29,9 +42,7 @@ const gemInstall = spawnSync(
   'gem',
   [
     'install',
-    editorServicesGem,
-    '--version',
-    editorServicesVersion,
+    ...(localGemPath ? [localGemPath] : [editorServicesGem, '--version', editorServicesVersion]),
     '--install-dir',
     languageServerGemHome,
     '--bindir',
@@ -52,7 +63,7 @@ if (gemInstall.error) {
   throw gemInstall.error;
 }
 if (gemInstall.status !== 0) {
-  throw new Error(`Unable to install ${editorServicesGem} ${editorServicesVersion}.`);
+  throw new Error(`Unable to install ${localGemPath ?? `${editorServicesGem} ${editorServicesVersion}`}.`);
 }
 
 // Open VSX flags RBS's URI documentation example as a password.
@@ -83,4 +94,4 @@ await rm(languageServerGemBin, { recursive: true, force: true });
 await cp(path.join(editorServicesInstallRoot, 'lib'), path.join(languageServerTarget, 'lib'), { recursive: true });
 await cp(path.join(editorServicesInstallRoot, 'LICENSE'), path.join(languageServerTarget, 'LICENSE'));
 
-console.log(`Vendored ${editorServicesGem} ${editorServicesVersion} from RubyGems`);
+console.log(`Vendored ${editorServicesGem} ${editorServicesVersion} from ${localGemPath ?? 'RubyGems'}`);

@@ -150,6 +150,23 @@ npm run package
 
 The build downloads the `openvox-editor-services` version pinned in `package.json` from RubyGems and vendors it into the extension package.
 
+To test local changes to `openvox-editor-services` before a gem is released, build a gem from the sibling checkout and point
+the vendoring step at it:
+
+```shell
+cd ../openvox-editor-services
+gem build openvox-editor-services.gemspec \
+  --output pkg/openvox-editor-services-3.1.2.gem
+
+cd ../openvox-vscode
+OPENVOX_EDITOR_SERVICES_GEM=../openvox-editor-services/pkg/openvox-editor-services-3.1.2.gem \
+  npm run build
+```
+
+The version is read from the gem filename (`openvox-editor-services-<version>.gem`). If the file has a different name,
+also set `OPENVOX_EDITOR_SERVICES_VERSION`. This override is intended for local development only; release builds should
+vendor the version pinned in `package.json`.
+
 ## Acknowledgements and license
 
 This project is a fork and reimplementation of the
