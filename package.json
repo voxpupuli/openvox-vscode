@@ -151,6 +151,32 @@
           "default": "",
           "description": "Optional language-server debug log file."
         },
+        "openvox.editorService.formatOnType.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable on-type formatting, such as aligning hash rockets while typing."
+        },
+        "openvox.editorService.formatOnType.maxFileSize": {
+          "type": "integer",
+          "default": 16384,
+          "minimum": 0,
+          "description": "Maximum file size in bytes for on-type formatting. Set to 0 to disable the limit. Also limits the language server's basic document formatter."
+        },
+        "openvox.editorService.foldingRange.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable syntax-aware code folding."
+        },
+        "openvox.editorService.foldingRange.showLastLine": {
+          "type": "boolean",
+          "default": true,
+          "description": "Keep the last line of a folded region visible."
+        },
+        "openvox.validate.resolvePuppetfiles": {
+          "type": "boolean",
+          "default": true,
+          "description": "Resolve Puppetfile dependencies during validation. Disable to avoid dependency resolution and network access."
+        },
         "openvox.format.puppetLint.enabled": {
           "type": "boolean",
           "default": true,
