@@ -55,8 +55,8 @@ from the Command Palette.
 
 ## Configuration
 
-The defaults work with a standard OpenVox Agent installation. The following settings are available when a custom runtime,
-OpenVox environment, or additional logging is needed:
+The defaults work with a standard OpenVox Agent installation. The following settings are available for customizing the
+runtime, editor behavior, or logging:
 
 | Setting | Default | Purpose |
 | --- | --- | --- |
@@ -67,11 +67,19 @@ OpenVox environment, or additional logging is needed:
 | `openvox.languageServer.timeout` | `10` | Sets the client connection timeout in seconds. |
 | `openvox.languageServer.logLevel` | `normal` | Sets extension logging to `debug`, `normal`, `warning`, or `error`. |
 | `openvox.languageServer.debugFilePath` | empty | Writes a language-server debug log to the specified file. |
+| `openvox.editorService.formatOnType.enable` | `true` | Enables on-type formatting, such as hash-rocket alignment while typing. |
+| `openvox.editorService.formatOnType.maxFileSize` | `16384` | Sets the maximum file size in bytes for on-type formatting; `0` disables the limit. |
+| `openvox.editorService.foldingRange.enable` | `true` | Enables syntax-aware code folding. |
+| `openvox.editorService.foldingRange.showLastLine` | `true` | Keeps the last line of a folded region visible. |
+| `openvox.validate.resolvePuppetfiles` | `true` | Resolves Puppetfile dependencies during validation. Disable to avoid dependency resolution and network access. |
 | `openvox.format.puppetLint.enabled` | `true` | Formats manifests with the bundled `puppet-lint --fix`. |
 | `openvox.puppet.confdir` | empty | Passes a custom OpenVox configuration directory to the server. |
 | `openvox.puppet.environment` | empty | Selects the OpenVox environment used for workspace data. |
 | `openvox.puppet.modulePath` | empty | Adds an OpenVox module path. |
 | `openvox.puppet.vardir` | empty | Passes a custom OpenVox cache directory to the server. |
+
+Editor settings take effect without reloading the VS Code window. Runtime and language-server settings require a window
+reload.
 
 ## Commands
 
@@ -98,8 +106,11 @@ Format Document runs the `puppet-lint` bundled with the OpenVox language server.
 
 - The available checks and their behavior follow the `puppet-lint` version bundled with `openvox-editor-services`.
 - Format-on-save works through the standard VS Code `editor.formatOnSave` setting.
+- On-type formatting aligns hash rockets when you type `=>`. It requires spaces for indentation, which is the default
+  for Puppet files in this extension.
 - Only `.pp` manifests are formatted. `.epp` templates and `Puppetfile` files are not changed by `puppet-lint`.
 - Set `openvox.format.puppetLint.enabled` to `false` to use the language server's basic formatter instead.
+  `openvox.editorService.formatOnType.maxFileSize` limits that basic formatter, but not `puppet-lint` formatting.
 - Formatting requires the OpenVox language server to be running.
 
 ## Troubleshooting
@@ -138,6 +149,23 @@ npm run package
 ```
 
 The build downloads the `openvox-editor-services` version pinned in `package.json` from RubyGems and vendors it into the extension package.
+
+To test local changes to `openvox-editor-services` before a gem is released, build a gem from the sibling checkout and point
+the vendoring step at it:
+
+```shell
+cd ../openvox-editor-services
+gem build openvox-editor-services.gemspec \
+  --output pkg/openvox-editor-services-3.1.2.gem
+
+cd ../openvox-vscode
+OPENVOX_EDITOR_SERVICES_GEM=../openvox-editor-services/pkg/openvox-editor-services-3.1.2.gem \
+  npm run build
+```
+
+The version is read from the gem filename (`openvox-editor-services-<version>.gem`). If the file has a different name,
+also set `OPENVOX_EDITOR_SERVICES_VERSION`. This override is intended for local development only; release builds should
+vendor the version pinned in `package.json`.
 
 ## Acknowledgements and license
 
