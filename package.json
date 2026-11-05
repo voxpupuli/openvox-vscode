@@ -205,7 +205,6 @@
     "vscode-textmate": "^9.3.2"
   },
   "allowScripts": {
-    "@vscode/vsce-sign@2.0.9": true,
-    "keytar@7.9.0": true
+    "@vscode/vsce-sign@2.1.0": true
   }
 }
