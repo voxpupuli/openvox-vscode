@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [main](https://github.com/voxpupuli/openvox-vscode/tree/main) (2026-11-06)
+
+[Full Changelog](https://github.com/voxpupuli/openvox-vscode/compare/v0.2.0...main)
+
+**Merged pull requests:**
+
+- fix: reduce image size for VS Code Marketplace to accept it [\#96](https://github.com/voxpupuli/openvox-vscode/pull/96) ([rwaffen](https://github.com/rwaffen))
+
 ## [v0.2.0](https://github.com/voxpupuli/openvox-vscode/tree/v0.2.0) (2026-11-06)
 
 [Full Changelog](https://github.com/voxpupuli/openvox-vscode/compare/v0.1.1...v0.2.0)
