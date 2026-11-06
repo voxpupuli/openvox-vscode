@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: write
+  # Allow vsce to request a GitHub OIDC token for Marketplace trusted publishing.
+  id-token: write
 
 concurrency:
   group: release-${{ github.ref }}
@@ -20,6 +22,7 @@ env:
 jobs:
   release:
     name: Build and release VSIX
+    environment: release
     if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -49,7 +52,7 @@ jobs:
 
           echo "vsix=openvox-vscode-$package_version.vsix" >> "$GITHUB_OUTPUT"
 
-      # A retry can run for the same tag if the GitHub release succeeded but publishing to Open VSX failed.
+      # A retry can run for the same tag if the GitHub release succeeded but marketplace publishing failed.
       # Published releases are immutable, so reuse their VSIX instead of rebuilding or replacing assets.
       # Missing releases and unfinished drafts still need the build and publication steps.
       - name: Determine GitHub release state
@@ -112,11 +115,18 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p artifacts
-          # Publish the exact asset from the immutable GitHub release to Open VSX.
+          # Publish the exact asset from the immutable GitHub release to both marketplaces.
           gh release download "${{ github.ref_name }}" \
             --pattern "${{ steps.release.outputs.vsix }}" \
             --dir artifacts \
             --clobber
+
+      - name: Publish to Visual Studio Marketplace
+        run: |
+          npx --no-install vsce publish \
+            --oidc \
+            --skip-duplicate \
+            --packagePath "artifacts/${{ steps.release.outputs.vsix }}"
 
       - name: Publish to open-vsx Marketplace
         env:
