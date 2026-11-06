@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v0.2.0](https://github.com/voxpupuli/openvox-vscode/tree/v0.2.0) (2026-11-06)
+
+[Full Changelog](https://github.com/voxpupuli/openvox-vscode/compare/v0.1.1...v0.2.0)
+
+**Implemented enhancements:**
+
+- FR: add code formating [\#8](https://github.com/voxpupuli/openvox-vscode/issues/8)
+- expose language server editor settings [\#88](https://github.com/voxpupuli/openvox-vscode/pull/88) ([jay7x](https://github.com/jay7x))
+- Implement puppet-lint formatting [\#87](https://github.com/voxpupuli/openvox-vscode/pull/87) ([jay7x](https://github.com/jay7x))
+
+**Fixed bugs:**
+
+- Extension fails on `class` input [\#86](https://github.com/voxpupuli/openvox-vscode/issues/86)
+
+**Merged pull requests:**
+
+- Update node version and npm packages [\#93](https://github.com/voxpupuli/openvox-vscode/pull/93) ([jay7x](https://github.com/jay7x))
+- chore\(deps\): update dependency @types/vscode to v1.145.0 [\#90](https://github.com/voxpupuli/openvox-vscode/pull/90) ([renovate[bot]](https://github.com/apps/renovate))
+
 ## [v0.1.1](https://github.com/voxpupuli/openvox-vscode/tree/v0.1.1) (2026-11-01)
 
 [Full Changelog](https://github.com/voxpupuli/openvox-vscode/compare/v0.1.0...v0.1.1)
