@@ -2,7 +2,7 @@
   "name": "openvox-vscode",
   "displayName": "OpenVox",
   "description": "OpenVox Puppet DSL support for Visual Studio Code",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "voxpupuli",
   "license": "GPL-3.0-or-later",
   "icon": "images/openvox_bildmarke.png",
