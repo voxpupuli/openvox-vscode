@@ -10,7 +10,11 @@ Rakefile
 RELEASE.md
 src/**
 scripts/**
-node_modules/@types/**
-node_modules/typescript/**
+node_modules/**
+out/**
+!out/extension.js
+!out/extension.LICENSE.txt
+tests/**
+.markdownlint*
 **/*.map
 tsconfig.json

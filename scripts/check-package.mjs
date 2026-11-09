@@ -2,10 +2,7 @@ import { access } from 'node:fs/promises';
 
 const requiredPaths = [
   '../out/extension.js',
-  '../out/messages.js',
-  '../out/formatting/core.js',
-  '../out/formatting/provider.js',
-  '../out/formatting/types.js',
+  '../out/extension.LICENSE.txt',
   '../syntaxes/puppet.tmLanguage',
   '../syntaxes/puppetfile.cson.json',
   '../snippets/keywords.snippets.json',

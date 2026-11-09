@@ -149,6 +149,9 @@ npm run package
 ```
 
 The build downloads the `openvox-editor-services` version pinned in `package.json` from RubyGems and vendors it into the extension package.
+The JavaScript client and its npm dependencies are bundled into `out/extension.js` with esbuild.
+Their license texts are included in `out/extension.LICENSE.txt`.
+Tests use the individual modules produced by `npm run compile`; packaging rebuilds the bundle automatically.
 
 To test local changes to `openvox-editor-services` before a gem is released, build a gem from the sibling checkout and point
 the vendoring step at it:
