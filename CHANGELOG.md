@@ -2,9 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
-## [main](https://github.com/voxpupuli/openvox-vscode/tree/main) (2026-11-06)
+## [v0.2.2](https://github.com/voxpupuli/openvox-vscode/tree/v0.2.2) (2026-11-09)
 
-[Full Changelog](https://github.com/voxpupuli/openvox-vscode/compare/v0.2.0...main)
+[Full Changelog](https://github.com/voxpupuli/openvox-vscode/compare/v0.2.1...v0.2.2)
+
+**Merged pull requests:**
+
+- chore\(deps\): update ruby/setup-ruby action to v1.338.0 [\#98](https://github.com/voxpupuli/openvox-vscode/pull/98) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [v0.2.1](https://github.com/voxpupuli/openvox-vscode/tree/v0.2.1) (2026-11-06)
+
+[Full Changelog](https://github.com/voxpupuli/openvox-vscode/compare/v0.2.0...v0.2.1)
 
 **Merged pull requests:**
 
