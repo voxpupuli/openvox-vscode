@@ -62,6 +62,16 @@
     ],
     "description": "Declare a notify resource"
   },
+  "Exec resource": {
+    "prefix": "exec resource",
+    "body": [
+      "exec { '${1:title}':",
+      "  command => '${2:command}',",
+      "  ${0}",
+      "}"
+    ],
+    "description": "Declare an exec resource"
+  },
   "Include class": {
     "prefix": "include class",
     "body": [
