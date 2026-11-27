@@ -221,7 +221,7 @@
     "openvox-editor-services": "4.0.1"
   },
   "dependencies": {
-    "vscode-languageclient": "^11.0.0"
+    "vscode-languageclient": "^12.0.0"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",
